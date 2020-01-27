@@ -121,6 +121,7 @@ public class DropwizardApacheConnector implements Connector {
      * @return a new {@link org.apache.http.client.methods.HttpUriRequest}
      */
     private HttpUriRequest buildApacheRequest(ClientRequest jerseyRequest) {
+        String body = "";
         final RequestBuilder builder = RequestBuilder
                 .create(jerseyRequest.getMethod())
                 .setUri(jerseyRequest.getUri())

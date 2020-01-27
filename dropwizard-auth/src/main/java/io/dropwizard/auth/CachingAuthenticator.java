@@ -24,8 +24,8 @@ import static com.codahale.metrics.MetricRegistry.name;
 public class CachingAuthenticator<C, P extends Principal> implements Authenticator<C, P> {
     private final Authenticator<C, P> underlying;
     private final Cache<C, Optional<P>> cache;
-    private final Meter cacheMisses;
-    private final Timer gets;
+    private final Meter meter;
+    private final Timer timer;
 
     /**
      * Creates a new cached authenticator.
@@ -51,18 +51,18 @@ public class CachingAuthenticator<C, P extends Principal> implements Authenticat
                                 final Authenticator<C, P> authenticator,
                                 final CacheBuilder<Object, Object> builder) {
         this.underlying = authenticator;
-        this.cacheMisses = metricRegistry.meter(name(authenticator.getClass(), "cache-misses"));
-        this.gets = metricRegistry.timer(name(authenticator.getClass(), "gets"));
+        this.meter = metricRegistry.meter(name(authenticator.getClass(), "cache-misses"));
+        this.timer = metricRegistry.timer(name(authenticator.getClass(), "gets"));
         this.cache = builder.recordStats().build();
     }
 
     @Override
     public Optional<P> authenticate(C credentials) throws AuthenticationException {
-        final Timer.Context context = gets.time();
+        final Timer.Context context = timer.time();
         try {
             Optional<P> optionalPrincipal = cache.getIfPresent(credentials);
             if (optionalPrincipal == null) {
-                cacheMisses.mark();
+                meter.mark();
                 optionalPrincipal = underlying.authenticate(credentials);
                 if (optionalPrincipal.isPresent()) {
                     cache.put(credentials, optionalPrincipal);

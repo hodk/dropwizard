@@ -27,19 +27,19 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class DropwizardResourceConfigBenchmark {
 
-    private DropwizardResourceConfig dropwizardResourceConfig =
+    private DropwizardResourceConfig resourceConfig =
             new DropwizardResourceConfig(true, new MetricRegistry());
 
     @Setup
     public void setUp() {
-        dropwizardResourceConfig.register(DistributionResource.class);
-        dropwizardResourceConfig.register(AssetResource.class);
-        dropwizardResourceConfig.register(ClustersResource.class);
+        resourceConfig.register(DistributionResource.class);
+        resourceConfig.register(AssetResource.class);
+        resourceConfig.register(ClustersResource.class);
     }
 
     @Benchmark
     public String getEndpointsInfo() {
-        return dropwizardResourceConfig.getEndpointsInfo();
+        return resourceConfig.getEndpointsInfo();
     }
 
     public static void main(String[] args) throws Exception {
